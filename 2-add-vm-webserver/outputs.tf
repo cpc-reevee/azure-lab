@@ -1,6 +1,6 @@
 output "hashiapp_url" {
   description = "URL of the provisioned webapp."
-  value       = "http://${azurerm_public_ip.hashicafe.fqdn}"
+  value       = "http://${azurerm_public_ip.hashilab.fqdn}"
 }
 
 output "product" {

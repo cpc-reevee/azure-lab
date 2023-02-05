@@ -8,31 +8,24 @@ locals {
   }
 }
 
-resource "azurerm_resource_group" "hashicafe" {
-  name     = "${var.prefix}-webapp"
-  location = var.location
-
-  tags = local.tags
-}
-
-resource "azurerm_virtual_network" "hashicafe" {
+resource "azurerm_virtual_network" "hashilab" {
   name                = "${var.prefix}-vnet"
-  location            = azurerm_resource_group.hashicafe.location
+  location            = azurerm_resource_group.resource-rg.location
   address_space       = [var.address_space]
-  resource_group_name = azurerm_resource_group.hashicafe.name
+  resource_group_name = azurerm_resource_group.resource-rg.name
 }
 
-resource "azurerm_subnet" "hashicafe" {
+resource "azurerm_subnet" "hashilab" {
   name                 = "${var.prefix}-subnet"
-  virtual_network_name = azurerm_virtual_network.hashicafe.name
-  resource_group_name  = azurerm_resource_group.hashicafe.name
+  virtual_network_name = azurerm_virtual_network.hashilab.name
+  resource_group_name  = azurerm_resource_group.resource-rg.name
   address_prefixes     = [var.subnet_prefix]
 }
 
-resource "azurerm_network_security_group" "hashicafe" {
+resource "azurerm_network_security_group" "hashilab" {
   name                = "${var.prefix}-sg"
-  location            = var.location
-  resource_group_name = azurerm_resource_group.hashicafe.name
+  location            = azurerm_resource_group.resource-rg.location
+  resource_group_name = azurerm_resource_group.resource-rg.name
 
   security_rule {
     name                       = "HTTP"
@@ -71,39 +64,39 @@ resource "azurerm_network_security_group" "hashicafe" {
   }
 }
 
-resource "azurerm_network_interface" "hashicafe" {
+resource "azurerm_network_interface" "hashilab" {
   name                = "${var.prefix}-nic"
-  location            = var.location
-  resource_group_name = azurerm_resource_group.hashicafe.name
+  location            = azurerm_resource_group.resource-rg.location
+  resource_group_name = azurerm_resource_group.resource-rg.name
 
   ip_configuration {
     name                          = "${var.prefix}ipconfig"
-    subnet_id                     = azurerm_subnet.hashicafe.id
+    subnet_id                     = azurerm_subnet.hashilab.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.hashicafe.id
+    public_ip_address_id          = azurerm_public_ip.hashilab.id
   }
 }
 
-resource "azurerm_network_interface_security_group_association" "hashicafe" {
-  network_interface_id      = azurerm_network_interface.hashicafe.id
-  network_security_group_id = azurerm_network_security_group.hashicafe.id
+resource "azurerm_network_interface_security_group_association" "hashilab" {
+  network_interface_id      = azurerm_network_interface.hashilab.id
+  network_security_group_id = azurerm_network_security_group.hashilab.id
 }
 
-resource "azurerm_public_ip" "hashicafe" {
+resource "azurerm_public_ip" "hashilab" {
   name                = "${var.prefix}-ip"
-  location            = var.location
-  resource_group_name = azurerm_resource_group.hashicafe.name
+  location            = azurerm_resource_group.resource-rg.location
+  resource_group_name = azurerm_resource_group.resource-rg.name
   allocation_method   = "Dynamic"
   domain_name_label   = "${var.prefix}-app"
 }
 
-resource "azurerm_linux_virtual_machine" "hashicafe" {
+resource "azurerm_linux_virtual_machine" "hashilab" {
   name                = "${var.prefix}-webapp"
-  location            = var.location
-  resource_group_name = azurerm_resource_group.hashicafe.name
+  location            = azurerm_resource_group.resource-rg.location
+  resource_group_name = azurerm_resource_group.resource-rg.name
   size                = var.vm_size
 
-  network_interface_ids = [azurerm_network_interface.hashicafe.id]
+  network_interface_ids = [azurerm_network_interface.hashilab.id]
 
   source_image_reference {
     publisher = "Canonical"
@@ -127,7 +120,7 @@ resource "azurerm_linux_virtual_machine" "hashicafe" {
   tags = local.tags
 
   # Added to allow destroy to work correctly.
-  depends_on = [azurerm_network_interface_security_group_association.hashicafe]
+  depends_on = [azurerm_network_interface_security_group_association.hashilab]
 }
 
 # We're using a little trick here so we can run the provisioner without
@@ -142,7 +135,7 @@ resource "random_integer" "product" {
 }
 
 resource "null_resource" "configure-web-app" {
-  depends_on = [azurerm_linux_virtual_machine.hashicafe]
+  depends_on = [azurerm_linux_virtual_machine.hashilab]
 
   triggers = {
     build_number = local.timestamp
@@ -152,7 +145,7 @@ resource "null_resource" "configure-web-app" {
     type     = "ssh"
     user     = var.admin_username
     password = var.admin_password
-    host     = azurerm_public_ip.hashicafe.fqdn
+    host     = azurerm_public_ip.hashilab.fqdn
   }
 
   provisioner "remote-exec" {

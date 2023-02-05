@@ -1,5 +1,4 @@
-# tf-azure-webapp
+# Azure Terraform Live Lab!
 
-A sample web application for Terraform demonstrations.
+The material in this repository will be used to add some cool stuff to our existing provisioned CP Chem repository and workspace!
 
-Uses an image sourced from HCP Packer, specified by the packer_bucket and packer_channel input variables. See the [HCP provider docs](https://registry.terraform.io/providers/hashicorp/hcp/latest/docs) for full usage instructions. The image is expected to have Nginx (or Apache HTTPD) already installed.

@@ -3,11 +3,6 @@ variable "prefix" {
   description = "This prefix will be included in the name of most resources."
 }
 
-variable "location" {
-  type        = string
-  description = "Azure region where the resources are created."
-}
-
 variable "env" {
   type        = string
   description = "Value for the environment tag."
