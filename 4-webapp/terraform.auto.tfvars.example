@@ -1,0 +1,3 @@
+prefix           = "eric-demo" # must contain only lowercase alphanumeric characters, numbers and hyphens, must start with a letter
+env              = "immersionday"
+# youtube_video_id = "dQw4w9WgXcQ"
